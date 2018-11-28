@@ -3,6 +3,7 @@ const {Enlace, validar} = require('../models/enlace');
 const {Tema} = require('../models/tema');
 const {Valoracion} = require('../models/valoracion');
 const message = require('../messages');
+const validateObjectId = require('../middleware/validateObjectId');
 const router = express.Router();
 
 // /api/enlaces?pagina=1&registros=5
@@ -19,7 +20,7 @@ router.get('/', async (req, res) => {
 	res.send(enlaces);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId, async (req, res) => {
   const enlace = await Enlace.findById(req.params.id);
   if (!enlace) return res.status(404).send(message.ENLACE_NO_ENCONTRADO);
 
@@ -47,7 +48,7 @@ router.post('/', async (req, res) => {
 	res.send(enlace);	
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateObjectId, async (req, res) => {
 	const enlace = await Enlace.findOneAndDelete({_id: req.params.id});  
   	if (!enlace) return res.status(404).send(message.ENLACE_NO_ENCONTRADO);
 

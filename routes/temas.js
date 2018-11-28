@@ -1,6 +1,7 @@
 const express = require('express');
 const {Tema, validar} = require('../models/tema');
 const message = require('../messages');
+const validateObjectId = require('../middleware/validateObjectId');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
@@ -16,7 +17,7 @@ router.get('/', async (req, res) => {
 	res.send(temas);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId, async (req, res) => {
   const tema = await Tema.findById(req.params.id);
   if (!tema) return res.status(404).send(message.TEMA_NO_ENCONTRADO);
 
@@ -33,7 +34,7 @@ router.post('/', async (req, res) => {
 	res.send(tema);
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateObjectId, async (req, res) => {
   const { error } = validar(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
 

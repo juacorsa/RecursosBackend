@@ -4,6 +4,7 @@ const {Tema} = require('../models/tema');
 const {Valoracion} = require('../models/valoracion');
 const {Editorial} = require('../models/editorial');
 const {Idioma} = require('../models/idioma');
+const validateObjectId = require('../middleware/validateObjectId');
 const message = require('../messages');
 
 const router = express.Router();
@@ -21,7 +22,7 @@ router.get('/', async (req, res) => {
 	res.send(libros);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId, async (req, res) => {
   const libro = await Libro.findById(req.params.id);
   if (!libro) return res.status(404).send(message.LIBRO_NO_ENCONTRADO);
 
@@ -58,7 +59,7 @@ router.post('/', async (req, res) => {
 	res.send(libro);	
 });
 
-router.put('/:id', async (req, res) => {	
+router.put('/:id', validateObjectId, async (req, res) => {	
 	const { error } = validar(req.body);
 	if (error) return res.status(404).send(error.details[0].message);
 
@@ -89,7 +90,7 @@ router.put('/:id', async (req, res) => {
 	res.send(libro);	
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateObjectId, async (req, res) => {
 	const libro = await Libro.findOneAndDelete({_id: req.params.id});  
   	if (!libro) return res.status(404).send(message.LIBRO_NO_ENCONTRADO);
 
