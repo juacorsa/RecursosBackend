@@ -1,4 +1,5 @@
 const request = require('supertest');
+const mongoose = require('mongoose');
 const {Editorial} = require('../models/editorial');
 
 let server;
@@ -42,6 +43,13 @@ describe('/api/editoriales', () => {
 
 			expect(res.status).toBe(404);
 		});
+
+		it('devuelve un error 404 si le pasamos un id no válido', async () => {
+			const id  = mongoose.Types.ObjectId();
+			const res = await request(server).get('/api/editoriales/' + id);
+
+			expect(res.status).toBe(404);
+		});
 	});
 
 	describe('POST /', () => {
@@ -65,6 +73,14 @@ describe('/api/editoriales', () => {
 			expect(res.status).toBe(400);
 		});
 
+		it('devuelve un error 400 si el nombre de la editorial es vacío', async () => {
+			nombre = '';
+
+			const res = await exec();
+			
+			expect(res.status).toBe(400);
+		});		
+
 	    it('devuelve una editorial si es válida', async () => {		
 			const res = await exec();
 
@@ -82,6 +98,73 @@ describe('/api/editoriales', () => {
 
 	});
 
+	describe('PUT /', () => {
+		let nuevoNombre;
+		let id;
+		let editorial;
+
+    	const exec = async () => {
+      		return await request(server)
+        		.put('/api/editoriales/' + id)        
+        		.send({ nombre: nuevoNombre });
+    	}
+
+    	beforeEach(async () => {     
+        	editorial = new Editorial({ nombre: 'editorial1' });
+      		await editorial.save();      
+      
+      		id = editorial._id; 	
+      		nuevoNombre = 'editorialActualizada'; 
+    	})
+
+	    it('devuelve un error 400 if el nombre de la editorial es superior a 50 caracteres', async () => {
+	    	nuevoNombre = new Array(52).join('a');
+	      
+	      	const res = await exec();
+
+	      	expect(res.status).toBe(400);
+	    });
+
+	    it('devuelve un error 400 if el nombre de la editorial es vacío', async () => {
+	    	nuevoNombre = '';
+	      
+	      	const res = await exec();
+
+	      	expect(res.status).toBe(400);
+	    });
+
+	    it('devuelve un error 404 si el id no es válido', async () => {
+	      id = 1;
+
+	      const res = await exec();
+
+	      expect(res.status).toBe(404);
+	    });
+
+	    it('devuelve un error 404 si el id de la editorial no es válido', async () => {
+	      id = mongoose.Types.ObjectId();
+	      nuevoNombre = new Array(10).join('a');
+
+	      const res = await exec();
+
+	      expect(res.status).toBe(404);
+	    });
+
+	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
+	      await exec();
+
+	      const editorialActualizada = await Editorial.findById(editorial._id);
+
+	      expect(editorialActualizada.nombre).toBe(nuevoNombre);
+	    });
+
+	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
+	      const res = await exec();
+
+	      expect(res.body).toHaveProperty('_id');
+	      expect(res.body).toHaveProperty('nombre', nuevoNombre);
+	    });
+	});
 })
 
 

@@ -38,7 +38,7 @@ router.put('/:id', validateObjectId, async (req, res) => {
   const { error } = validar(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
 
-  const editorial = await Editorial.findOneAndUpdate(req.params.id,
+  const editorial = await Editorial.findByIdAndUpdate(req.params.id,
     { 
       nombre: req.body.nombre
     }, { new: true });
