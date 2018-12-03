@@ -16,9 +16,9 @@ const Enlace = mongoose.model('Enlace', new mongoose.Schema({
 
 function validar(enlace) {
 	const schema = {
-		titulo: Joi.string().required(),
-		url: Joi.string().required(),
-		temaId: Joi.objectId().required(),
+		titulo : Joi.string().required(),
+		url    : Joi.string().required(),
+		temaId : Joi.objectId().required(),
 		valoracionId: Joi.objectId().required()		
 	};
 

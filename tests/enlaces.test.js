@@ -1,102 +1,133 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const {Editorial} = require('../models/editorial');
+const {Enlace} = require('../models/enlace');
+
+const {Tema} = require('../models/tema');
+const {Valoracion} = require('../models/valoracion');
 
 let server;
 
-describe('/api/editoriales', () => {
+describe('/api/enlaces', () => {
 	beforeEach(() => { server = require('../server'); });
 	afterEach(async ()  => { 
 		server.close(); 
-		await Editorial.deleteMany({});
+		await Enlace.deleteMany({});
 	});
 
 	describe('GET /', () => {
-		it('devuelve todas las editoriales', async () => {
-			Editorial.collection.insertMany([
-				{ nombre: 'editorial1' },
-				{ nombre: 'editorial2' }
+		it('devuelve todas los enlaces', async () => {		
+			const temaId = mongoose.Types.ObjectId();
+			const valoracionId = mongoose.Types.ObjectId();
+
+			Enlace.collection.insertMany([
+				{ titulo: 'enlace1', url: 'url1', temaId, valoracionId },
+				{ titulo: 'enlace2', url: 'url2', temaId, valoracionId }
 			]);
 
-			const res = await request(server).get('/api/editoriales');
+			const res = await request(server).get('/api/enlaces');
 
 			expect(res.status).toBe(200);
 			expect(res.body.length).toBe(2);
-			expect(res.body.some(e => e.nombre === 'editorial1')).toBeTruthy();
-			expect(res.body.some(e => e.nombre === 'editorial2')).toBeTruthy();
+			expect(res.body.some(e => e.titulo === 'enlace1')).toBeTruthy();
+			expect(res.body.some(e => e.titulo === 'enlace2')).toBeTruthy();
 		});
 	});
 
 	describe('GET /:id', () => {
-		it('devuelve una editorial si le pasamos un id válido', async () => {
-			const editorial = new Editorial({ nombre: 'editorial1' });
-			await editorial.save();			
+		it('devuelve un enlace si le pasamos un id válido', async () => {
+			const tema = mongoose.Types.ObjectId();
+			const valoracion = mongoose.Types.ObjectId();
 
-			const res = await request(server).get('/api/editoriales/' + editorial._id);
+			const enlace = new Enlace({ titulo: 'enlace1', url: 'url1', tema, valoracion });
+			await enlace.save();			
 
-			expect(editorial).not.toBeNull();							
+			const res = await request(server).get('/api/enlaces/' + enlace._id);
+
+			expect(enlace).not.toBeNull();	
 		});
 
 		it('devuelve un error 404 si le pasamos un id no válido', async () => {
-			const res = await request(server).get('/api/editoriales/1');
+			const res = await request(server).get('/api/enlaces/1');
 
 			expect(res.status).toBe(404);
 		});
 
 		it('devuelve un error 404 si le pasamos un id no válido', async () => {
 			const id  = mongoose.Types.ObjectId();
-			const res = await request(server).get('/api/editoriales/' + id);
+			const res = await request(server).get('/api/enlaces/' + id);
 
 			expect(res.status).toBe(404);
 		});
-	});
-
+	});	
+	
 	describe('POST /', () => {
-		let nombre;
+		let titulo;
+		let url;
+		let tema;
+		let valoracion;
 
 		const exec = async () => {
 			return await request(server)
-		        .post('/api/editoriales/')
-		        .send({ nombre });
+		        .post('/api/enlaces/')
+		        .send({ titulo, url, tema, valoracion });
 		}		
 
 		beforeEach(() => {      		
-      		nombre = 'editorial1'; 
+      		titulo = 'enlace1'; 
+      		url    = 'url1';
+      		tema   = mongoose.Types.ObjectId();
+      		valoracion = mongoose.Types.ObjectId();
     	})
 
-		it('devuelve un error 400 si el nombre es superior a 50 caracteres', async () => {
-			nombre = new Array(52).join('a');
+		it('devuelve un error 400 si el títuo del enlace es vacío', async () => {
+			titulo = ';'
 
 			const res = await exec();
 			
 			expect(res.status).toBe(400);
 		});
 
-		it('devuelve un error 400 si el nombre de la editorial es vacío', async () => {
-			nombre = '';
+		it('devuelve un error 400 si la url del enlace es vacía', async () => {
+			url = ';'
 
 			const res = await exec();
 			
 			expect(res.status).toBe(400);
-		});		
+		});	
 
-	    it('devuelve una editorial si es válida', async () => {		
+		it('devuelve un error 400 si el tema del enlace es vacío', async () => {
+			tema = '';
+
+			const res = await exec();
+			
+			expect(res.status).toBe(400);
+		});
+
+		it('devuelve un error 400 si la valoración del enlace es vacía', async () => {
+			valoracion = '';
+
+			const res = await exec();
+			
+			expect(res.status).toBe(400);
+		});
+
+	    it('devuelve un enlace si es válido', async () => {		
 			const res = await exec();
 
-	      	const editorial = await Editorial.find({ nombre });
+	      	const enlace = await Enlace.find({ titulo: 'enlace1' });
 
-	      	expect(editorial).not.toBeNull();
+	      	expect(enlace).not.toBeNull();	      	
 	    });
 
-	    it('devuelve una editorial si es válida', async () => {
-			const res = await exec();		
-
-	      	expect(res.body).toHaveProperty('_id');	      	
-	      	expect(res.body).toHaveProperty('nombre', nombre);
+	    it.skip('devuelve un valor 200 al registrar un enlace', async () => {
+			const res = await exec();								      	
+	      	
+			expect(res.status).toBe(200);	      	
 	    });
 
 	});
 
+	/*
 	describe('PUT /', () => {
 		let nuevoNombre;
 		let id;
@@ -104,12 +135,12 @@ describe('/api/editoriales', () => {
 
     	const exec = async () => {
       		return await request(server)
-        		.put('/api/editoriales/' + id)        
+        		.put('/api/enlaces/' + id)        
         		.send({ nombre: nuevoNombre });
     	}
 
     	beforeEach(async () => {     
-        	editorial = new Editorial({ nombre: 'editorial1' });
+        	editorial = new Editorial({ nombre: 'enlace1' });
       		await editorial.save();      
       
       		id = editorial._id; 	
@@ -163,7 +194,5 @@ describe('/api/editoriales', () => {
 	      expect(res.body).toHaveProperty('_id');
 	      expect(res.body).toHaveProperty('nombre', nuevoNombre);
 	    });
-	});
+	});*/
 })
-
-
