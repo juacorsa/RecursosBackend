@@ -1,8 +1,7 @@
-const request = require('supertest');
+const request  = require('supertest');
 const mongoose = require('mongoose');
 const {Enlace} = require('../models/enlace');
-
-const {Tema} = require('../models/tema');
+const {Tema}   = require('../models/tema');
 const {Valoracion} = require('../models/valoracion');
 
 let server;
@@ -63,24 +62,22 @@ describe('/api/enlaces', () => {
 	describe('POST /', () => {
 		let titulo;
 		let url;
-		let tema;
-		let valoracion;
+		let temaId;
+		let valoracionId;
 
 		const exec = async () => {
 			return await request(server)
 		        .post('/api/enlaces/')
-		        .send({ titulo, url, tema, valoracion });
+		        .send({ titulo, url, temaId, valoracionId });
 		}		
 
 		beforeEach(() => {      		
       		titulo = 'enlace1'; 
       		url    = 'url1';
-      		tema   = mongoose.Types.ObjectId();
-      		valoracion = mongoose.Types.ObjectId();
     	})
 
-		it('devuelve un error 400 si el títuo del enlace es vacío', async () => {
-			titulo = ';'
+		it('devuelve un error 400 si el título del enlace es vacío', async () => {
+			titulo = '';
 
 			const res = await exec();
 			
@@ -88,7 +85,7 @@ describe('/api/enlaces', () => {
 		});
 
 		it('devuelve un error 400 si la url del enlace es vacía', async () => {
-			url = ';'
+			url = '';
 
 			const res = await exec();
 			
@@ -96,7 +93,7 @@ describe('/api/enlaces', () => {
 		});	
 
 		it('devuelve un error 400 si el tema del enlace es vacío', async () => {
-			tema = '';
+			temaId = '';
 
 			const res = await exec();
 			
@@ -104,60 +101,69 @@ describe('/api/enlaces', () => {
 		});
 
 		it('devuelve un error 400 si la valoración del enlace es vacía', async () => {
-			valoracion = '';
+			valoracionId = '';
 
 			const res = await exec();
 			
 			expect(res.status).toBe(400);
 		});
 
-	    it('devuelve un enlace si es válido', async () => {		
-			const res = await exec();
+	    it('devuelve un enlace si es válido', async () => {	
+	    	const tema = Tema.findOne();
+	    	temaId = tema._id;
+
+	    	const valoracion = Valoracion.findOne();
+	    	valoracionId = valoracion._id;
+
+			await exec();
 
 	      	const enlace = await Enlace.find({ titulo: 'enlace1' });
 
 	      	expect(enlace).not.toBeNull();	      	
 	    });
-
-	    it.skip('devuelve un valor 200 al registrar un enlace', async () => {
-			const res = await exec();								      	
-	      	
-			expect(res.status).toBe(200);	      	
-	    });
-
 	});
-
-	/*
+	
 	describe('PUT /', () => {
-		let nuevoNombre;
+		let nuevoTitulo;
+		let nuevaUrl;
 		let id;
-		let editorial;
+		let enlace;
+		let temaId;
+		let valoracionId;
 
     	const exec = async () => {
       		return await request(server)
         		.put('/api/enlaces/' + id)        
-        		.send({ nombre: nuevoNombre });
+        		.send({ 'titulo': nuevoTitulo, 'url': nuevaUrl, 'temaId': temaId, 'valoracionId': valoracionId });
     	}
 
     	beforeEach(async () => {     
-        	editorial = new Editorial({ nombre: 'enlace1' });
-      		await editorial.save();      
+    		nuevoTitulo = 'nuevoTitulo';
+	    	nuevaUrl    = 'nuevaUrl';      		
+
+	    	const tema = await Tema.findOne();
+	    	temaId = tema._id;
+
+	    	const valoracion = await Valoracion.findOne();
+	    	valoracionId = valoracion._id;
+
+        	enlace = new Enlace({ 'titulo': 'mierda', 'url': 'url1', 'temaId': temaId, 'valoracionId': valoracionId });
+      		await enlace.save();      
       
-      		id = editorial._id; 	
-      		nuevoNombre = 'editorialActualizada'; 
+      		id = enlace._id; 	    		
     	})
 
-	    it('devuelve un error 400 if el nombre de la editorial es superior a 50 caracteres', async () => {
-	    	nuevoNombre = new Array(52).join('a');
+	    it('devuelve un error 400 si el título del enlace es vacío', async () => {
+	    	nuevoTitulo = '';	    	
 	      
 	      	const res = await exec();
 
 	      	expect(res.status).toBe(400);
 	    });
 
-	    it('devuelve un error 400 if el nombre de la editorial es vacío', async () => {
-	    	nuevoNombre = '';
-	      
+	    it('devuelve un error 400 si la url del enlace es vacía', async () => {
+	      	nuevaUrl = '';
+	      	
 	      	const res = await exec();
 
 	      	expect(res.status).toBe(400);
@@ -171,28 +177,28 @@ describe('/api/enlaces', () => {
 	      expect(res.status).toBe(404);
 	    });
 
-	    it('devuelve un error 404 si el id de la editorial no es válido', async () => {
-	      id = mongoose.Types.ObjectId();
-	      nuevoNombre = new Array(10).join('a');
+	    it('devuelve un error 404 si el id no es válido', async () => {
+	      id = mongoose.Types.ObjectId();	      
 
 	      const res = await exec();
 
 	      expect(res.status).toBe(404);
 	    });
 
-	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
+	    it('devuelve el enlace actualizado si éste es válido', async () => {
 	      await exec();
 
-	      const editorialActualizada = await Editorial.findById(editorial._id);
+	      const enlace = await Enlace.findById(id);
 
-	      expect(editorialActualizada.nombre).toBe(nuevoNombre);
+	      expect(enlace.titulo).toBe(nuevoTitulo);
 	    });
 
-	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
+	    it('devuelve el enlace actualizado si éste es válido', async () => {
 	      const res = await exec();
 
 	      expect(res.body).toHaveProperty('_id');
-	      expect(res.body).toHaveProperty('nombre', nuevoNombre);
+	      expect(res.body).toHaveProperty('titulo', nuevoTitulo);
+	      expect(res.body).toHaveProperty('url', nuevaUrl);
 	    });
-	});*/
+	});
 })

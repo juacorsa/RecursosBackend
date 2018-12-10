@@ -5,9 +5,9 @@ const valoracionSchema = require('./valoracion');
 
 const Enlace = mongoose.model('Enlace', new mongoose.Schema({
 	titulo: { type: String, required: true, trim: true },
-	url: { type: String, required: true, trim: true },
-	tema: { type: temaSchema, required: true },
-	valoracion: { type: valoracionSchema, required: true },
+	url:    { type: String, required: true, trim: true },
+	tema:   { type: temaSchema },
+	valoracion:  { type: valoracionSchema },
 	registrado : { type: Date, default: Date.now }
 },
 {

@@ -32,10 +32,10 @@ router.post('/', async (req, res) => {
 	if (error) return res.status(400).send(error.details[0].message);
 
 	const tema = await Tema.findById(req.body.temaId);	
-	if (!tema) res.status(400).send(message.TEMA_NO_ENCONTRADO);
+	if (!tema) res.status(404).send(message.TEMA_NO_ENCONTRADO);
 	
 	const valoracion = await Valoracion.findById(req.body.valoracionId);
-	if (!valoracion) res.status(400).send(message.VALORACION_NO_ENCONTRADA);
+	if (!valoracion) res.status(404).send(message.VALORACION_NO_ENCONTRADA);
 	
 	let enlace = new Enlace({ 
 		titulo: req.body.titulo,
@@ -55,9 +55,9 @@ router.delete('/:id', validateObjectId, async (req, res) => {
     res.send(enlace);
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateObjectId, async (req, res) => {
  	const { error } = validar(req.body); 
- 	if (error) return res.status(404).send(error.details[0].message);
+ 	if (error) return res.status(400).send(error.details[0].message);
 
   	const tema = await Tema.findById(req.body.temaId);	
   	if (!tema) res.status(404).send(message.TEMA_NO_ENCONTRADO);
@@ -68,10 +68,9 @@ router.put('/:id', async (req, res) => {
   	const enlace = await Enlace.findByIdAndUpdate(req.params.id,
     { 
       titulo: req.body.titulo,
-      url: req.body.url,
-      tema: tema,
-      valoracion: valoracion
-      
+      url   : req.body.url,
+      tema  : tema,
+      valoracion: valoracion      
     }, { new: true });
 
 	if (!enlace) return res.status(404).send(message.ENLACE_NO_ENCONTRADO);
