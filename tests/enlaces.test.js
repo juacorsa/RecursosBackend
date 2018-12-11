@@ -109,10 +109,12 @@ describe('/api/enlaces', () => {
 		});
 
 	    it('devuelve un enlace si es válido', async () => {	
-	    	const tema = Tema.findOne();
-	    	temaId = tema._id;
+	    	const tema = new Tema({ nombre: 'tema1' });
+			await tema.save();
+			temaId = tema._id;
 
-	    	const valoracion = Valoracion.findOne();
+	    	const valoracion = new Valoracion({ nombre: 'valoracion1' });
+	    	await valoracion.save();
 	    	valoracionId = valoracion._id;
 
 			await exec();
@@ -141,13 +143,15 @@ describe('/api/enlaces', () => {
     		nuevoTitulo = 'nuevoTitulo';
 	    	nuevaUrl    = 'nuevaUrl';      		
 
-	    	const tema = await Tema.findOne();
-	    	temaId = tema._id;
+	    	const tema = new Tema({ nombre: 'tema1' });
+			await tema.save();
+			temaId = tema._id;
 
-	    	const valoracion = await Valoracion.findOne();
+	    	const valoracion = new Valoracion({ nombre: 'valoracion1' });
+	    	await valoracion.save();
 	    	valoracionId = valoracion._id;
 
-        	enlace = new Enlace({ 'titulo': 'mierda', 'url': 'url1', 'temaId': temaId, 'valoracionId': valoracionId });
+        	enlace = new Enlace({ 'titulo': 'a', 'url': 'url1', 'temaId': temaId, 'valoracionId': valoracionId });
       		await enlace.save();      
       
       		id = enlace._id; 	    		

@@ -38,7 +38,7 @@ router.put('/:id', validateObjectId, async (req, res) => {
   const { error } = validar(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
 
-  const idioma = await Idioma.findOneAndUpdate(req.params.id,
+  const idioma = await Idioma.findByIdAndUpdate(req.params.id,
     { 
       nombre: req.body.nombre
     }, { new: true });

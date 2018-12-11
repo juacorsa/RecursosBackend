@@ -1,51 +1,51 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const {Editorial} = require('../models/editorial');
+const {Fabricante} = require('../models/fabricante');
 
 let server;
 
-describe('/api/editoriales', () => {
+describe('/api/fabricantes', () => {
 	beforeEach(() => { server = require('../server'); });
 	afterEach(async ()  => { 
 		server.close(); 
-		await Editorial.deleteMany({});
+		await Fabricante.deleteMany({});
 	});
 
 	describe('GET /', () => {
-		it('devuelve todas las editoriales', async () => {
-			Editorial.collection.insertMany([
-				{ nombre: 'editorial1' },
-				{ nombre: 'editorial2' }
+		it('devuelve todos los fabricantes', async () => {
+			Fabricante.collection.insertMany([
+				{ nombre: 'fabricante1' },
+				{ nombre: 'fabricante2' }
 			]);
 
-			const res = await request(server).get('/api/editoriales');
+			const res = await request(server).get('/api/fabricantes');
 
 			expect(res.status).toBe(200);
 			expect(res.body.length).toBe(2);
-			expect(res.body.some(e => e.nombre === 'editorial1')).toBeTruthy();
-			expect(res.body.some(e => e.nombre === 'editorial2')).toBeTruthy();
+			expect(res.body.some(e => e.nombre === 'fabricante1')).toBeTruthy();
+			expect(res.body.some(e => e.nombre === 'fabricante2')).toBeTruthy();
 		});
 	});
 
 	describe('GET /:id', () => {
-		it('devuelve una editorial si le pasamos un id válido', async () => {
-			const editorial = new Editorial({ nombre: 'editorial1' });
-			await editorial.save();			
+		it('devuelve un fabricante si le pasamos un id válido', async () => {
+			const fabricante = new Fabricante({ nombre: 'fabricante1' });
+			await fabricante.save();			
 
-			const res = await request(server).get('/api/editoriales/' + editorial._id);
+			const res = await request(server).get('/api/fabricantes/' + fabricante._id);
 
-			expect(editorial).not.toBeNull();							
+			expect(fabricante).not.toBeNull();							
 		});
 
 		it('devuelve un error 404 si le pasamos un id no válido', async () => {
-			const res = await request(server).get('/api/editoriales/1');
+			const res = await request(server).get('/api/fabricantes/1');
 
 			expect(res.status).toBe(404);
 		});
 
 		it('devuelve un error 404 si le pasamos un id no válido', async () => {
 			const id  = mongoose.Types.ObjectId();
-			const res = await request(server).get('/api/editoriales/' + id);
+			const res = await request(server).get('/api/fabricantes/' + id);
 
 			expect(res.status).toBe(404);
 		});
@@ -56,12 +56,12 @@ describe('/api/editoriales', () => {
 
 		const exec = async () => {
 			return await request(server)
-		        .post('/api/editoriales/')
+		        .post('/api/fabricantes/')
 		        .send({ nombre });
 		}		
 
 		beforeEach(() => {      		
-      		nombre = 'editorial1'; 
+      		nombre = 'fabricante1'; 
     	})
 
 		it('devuelve un error 400 si el nombre es superior a 50 caracteres', async () => {
@@ -72,7 +72,7 @@ describe('/api/editoriales', () => {
 			expect(res.status).toBe(400);
 		});
 
-		it('devuelve un error 400 si el nombre de la editorial es vacío', async () => {
+		it('devuelve un error 400 si el nombre del fabricante es vacío', async () => {
 			nombre = '';
 
 			const res = await exec();
@@ -80,15 +80,15 @@ describe('/api/editoriales', () => {
 			expect(res.status).toBe(400);
 		});		
 
-	    it('devuelve una editorial si es válida', async () => {		
+	    it('devuelve un fabricante si es válido', async () => {		
 			const res = await exec();
 
-	      	const editorial = await Editorial.find({ nombre });
+	      	const fabricante = await Fabricante.find({ nombre });
 
-	      	expect(editorial).not.toBeNull();
+	      	expect(fabricante).not.toBeNull();
 	    });
 
-	    it('devuelve una editorial si es válida', async () => {
+	    it('devuelve un fabricante si es válido', async () => {
 			const res = await exec();		
 
 	      	expect(res.body).toHaveProperty('_id');	      	
@@ -99,23 +99,23 @@ describe('/api/editoriales', () => {
 	describe('PUT /', () => {
 		let nuevoNombre;
 		let id;
-		let editorial;
+		let fabricante;
 
     	const exec = async () => {
       		return await request(server)
-        		.put('/api/editoriales/' + id)        
+        		.put('/api/fabricantes/' + id)        
         		.send({ nombre: nuevoNombre });
     	}
 
     	beforeEach(async () => {     
-        	editorial = new Editorial({ nombre: 'editorial1' });
-      		await editorial.save();      
+        	fabricante = new Fabricante({ nombre: 'fabricante1' });
+      		await fabricante.save();      
       
-      		id = editorial._id; 	
-      		nuevoNombre = 'editorialActualizada'; 
+      		id = fabricante._id; 	
+      		nuevoNombre = 'fabricanteActualizado'; 
     	})
 
-	    it('devuelve un error 400 if el nombre de la editorial es superior a 50 caracteres', async () => {
+	    it('devuelve un error 400 if el nombre del fabricante es superior a 50 caracteres', async () => {
 	    	nuevoNombre = new Array(52).join('a');
 	      
 	      	const res = await exec();
@@ -123,7 +123,7 @@ describe('/api/editoriales', () => {
 	      	expect(res.status).toBe(400);
 	    });
 
-	    it('devuelve un error 400 if el nombre de la editorial es vacío', async () => {
+	    it('devuelve un error 400 if el nombre del fabricante es vacío', async () => {
 	    	nuevoNombre = '';
 	      
 	      	const res = await exec();
@@ -139,7 +139,7 @@ describe('/api/editoriales', () => {
 	      expect(res.status).toBe(404);
 	    });
 
-	    it('devuelve un error 404 si el id de la editorial no es válido', async () => {
+	    it('devuelve un error 404 si el id del fabricante no es válido', async () => {
 	      id = mongoose.Types.ObjectId();
 	      nuevoNombre = new Array(10).join('a');
 
@@ -148,21 +148,20 @@ describe('/api/editoriales', () => {
 	      expect(res.status).toBe(404);
 	    });
 
-	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
+	    it('devuelve el fabricante actualizado si éste es válido', async () => {
 	      await exec();
 
-	      const editorialActualizada = await Editorial.findById(editorial._id);
+	      const fabricanteActualizado = await Fabricante.findById(fabricante._id);
 
-	      expect(editorialActualizada.nombre).toBe(nuevoNombre);
+	      expect(fabricanteActualizado	.nombre).toBe(nuevoNombre);
 	    });
 
-	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
+	    it('devuelve el fabricante actualizado si éste es válido', async () => {
 	      const res = await exec();
 
 	      expect(res.body).toHaveProperty('_id');
 	      expect(res.body).toHaveProperty('nombre', nuevoNombre);
 	    });
 	});
-})
-
+});
 

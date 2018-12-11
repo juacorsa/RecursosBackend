@@ -1,51 +1,53 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const {Editorial} = require('../models/editorial');
+const {Tema} = require('../models/tema');
 
 let server;
 
-describe('/api/editoriales', () => {
+describe('/api/temas', () => {
 	beforeEach(() => { server = require('../server'); });
 	afterEach(async ()  => { 
 		server.close(); 
-		await Editorial.deleteMany({});
+		await Tema.deleteMany({});
 	});
 
 	describe('GET /', () => {
-		it('devuelve todas las editoriales', async () => {
-			Editorial.collection.insertMany([
-				{ nombre: 'editorial1' },
-				{ nombre: 'editorial2' }
+		it('devuelve todos los temas', async () => {
+			await Tema.deleteMany({});
+
+			Tema.collection.insertMany([
+				{ nombre: 'tema1' },
+				{ nombre: 'tema2' }
 			]);
 
-			const res = await request(server).get('/api/editoriales');
+			const res = await request(server).get('/api/temas');
 
 			expect(res.status).toBe(200);
 			expect(res.body.length).toBe(2);
-			expect(res.body.some(e => e.nombre === 'editorial1')).toBeTruthy();
-			expect(res.body.some(e => e.nombre === 'editorial2')).toBeTruthy();
+			expect(res.body.some(e => e.nombre === 'tema1')).toBeTruthy();
+			expect(res.body.some(e => e.nombre === 'tema2')).toBeTruthy();
 		});
 	});
 
 	describe('GET /:id', () => {
-		it('devuelve una editorial si le pasamos un id válido', async () => {
-			const editorial = new Editorial({ nombre: 'editorial1' });
-			await editorial.save();			
+		it('devuelve un tema si le pasamos un id válido', async () => {
+			const tema = new Tema({ nombre: 'tema1' });
+			await tema.save();			
 
-			const res = await request(server).get('/api/editoriales/' + editorial._id);
+			const res = await request(server).get('/api/temas/' + tema._id);
 
-			expect(editorial).not.toBeNull();							
+			expect(tema).not.toBeNull();							
 		});
 
 		it('devuelve un error 404 si le pasamos un id no válido', async () => {
-			const res = await request(server).get('/api/editoriales/1');
+			const res = await request(server).get('/api/temas/1');
 
 			expect(res.status).toBe(404);
 		});
 
 		it('devuelve un error 404 si le pasamos un id no válido', async () => {
 			const id  = mongoose.Types.ObjectId();
-			const res = await request(server).get('/api/editoriales/' + id);
+			const res = await request(server).get('/api/temas/' + id);
 
 			expect(res.status).toBe(404);
 		});
@@ -56,15 +58,15 @@ describe('/api/editoriales', () => {
 
 		const exec = async () => {
 			return await request(server)
-		        .post('/api/editoriales/')
+		        .post('/api/temas/')
 		        .send({ nombre });
 		}		
 
 		beforeEach(() => {      		
-      		nombre = 'editorial1'; 
+      		nombre = 'tema1'; 
     	})
 
-		it('devuelve un error 400 si el nombre es superior a 50 caracteres', async () => {
+		it('devuelve un error 400 si el nombre del tema es superior a 50 caracteres', async () => {
 			nombre = new Array(52).join('a');
 
 			const res = await exec();
@@ -72,7 +74,7 @@ describe('/api/editoriales', () => {
 			expect(res.status).toBe(400);
 		});
 
-		it('devuelve un error 400 si el nombre de la editorial es vacío', async () => {
+		it('devuelve un error 400 si el nombre del tema es vacío', async () => {
 			nombre = '';
 
 			const res = await exec();
@@ -80,15 +82,15 @@ describe('/api/editoriales', () => {
 			expect(res.status).toBe(400);
 		});		
 
-	    it('devuelve una editorial si es válida', async () => {		
+	    it('devuelve un tema si es válido', async () => {		
 			const res = await exec();
 
-	      	const editorial = await Editorial.find({ nombre });
+	      	const tema = await Tema.find({ nombre });
 
-	      	expect(editorial).not.toBeNull();
+	      	expect(tema).not.toBeNull();
 	    });
 
-	    it('devuelve una editorial si es válida', async () => {
+	    it('devuelve un tema si es válido', async () => {
 			const res = await exec();		
 
 	      	expect(res.body).toHaveProperty('_id');	      	
@@ -99,23 +101,23 @@ describe('/api/editoriales', () => {
 	describe('PUT /', () => {
 		let nuevoNombre;
 		let id;
-		let editorial;
+		let tema;
 
     	const exec = async () => {
       		return await request(server)
-        		.put('/api/editoriales/' + id)        
+        		.put('/api/temas/' + id)        
         		.send({ nombre: nuevoNombre });
     	}
 
     	beforeEach(async () => {     
-        	editorial = new Editorial({ nombre: 'editorial1' });
-      		await editorial.save();      
+        	tema = new Tema({ nombre: 'tema1' });
+      		await tema.save();      
       
-      		id = editorial._id; 	
-      		nuevoNombre = 'editorialActualizada'; 
+      		id = tema._id; 	
+      		nuevoNombre = 'temaActualizado'; 
     	})
 
-	    it('devuelve un error 400 if el nombre de la editorial es superior a 50 caracteres', async () => {
+	    it('devuelve un error 400 if el nombre del tema es superior a 50 caracteres', async () => {
 	    	nuevoNombre = new Array(52).join('a');
 	      
 	      	const res = await exec();
@@ -123,7 +125,7 @@ describe('/api/editoriales', () => {
 	      	expect(res.status).toBe(400);
 	    });
 
-	    it('devuelve un error 400 if el nombre de la editorial es vacío', async () => {
+	    it('devuelve un error 400 if el nombre del tema es vacío', async () => {
 	    	nuevoNombre = '';
 	      
 	      	const res = await exec();
@@ -139,7 +141,7 @@ describe('/api/editoriales', () => {
 	      expect(res.status).toBe(404);
 	    });
 
-	    it('devuelve un error 404 si el id de la editorial no es válido', async () => {
+	    it('devuelve un error 404 si el id no es válido', async () => {
 	      id = mongoose.Types.ObjectId();
 	      nuevoNombre = new Array(10).join('a');
 
@@ -148,21 +150,19 @@ describe('/api/editoriales', () => {
 	      expect(res.status).toBe(404);
 	    });
 
-	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
+	    it('devuelve el tema actualizado si éste es válido', async () => {
 	      await exec();
 
-	      const editorialActualizada = await Editorial.findById(editorial._id);
+	      const temaActualizado = await Tema.findById(tema._id);
 
-	      expect(editorialActualizada.nombre).toBe(nuevoNombre);
+	      expect(temaActualizado.nombre).toBe(nuevoNombre);
 	    });
 
-	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
+	    it('devuelve el tema actualizado si éste es válido', async () => {
 	      const res = await exec();
 
 	      expect(res.body).toHaveProperty('_id');
 	      expect(res.body).toHaveProperty('nombre', nuevoNombre);
 	    });
 	});
-})
-
-
+});
