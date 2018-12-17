@@ -218,7 +218,7 @@ describe('/api/libros', () => {
 	    	const idioma = new Idioma({ nombre: 'idioma' });
 	    	await idioma.save();
 
-        	libro = new Libro({ 'titulo': 'titulo1', 'publicado': 2018, 'paginas': 55, tema, valoracion, editorial, idioma });
+        	libro = new Libro({ 'titulo': 'titulo1', publicado, paginas, tema, valoracion, editorial, idioma });
       		await libro.save();      
       
       		id = libro._id; 	    		
@@ -315,5 +315,79 @@ describe('/api/libros', () => {
 
 	      	expect(libro).not.toBeNull();	      	
 	    });
+	});
+
+	describe('DELETE /', () => {
+		let titulo;
+		let publicado;
+		let paginas;
+		let tema;
+		let editorial;
+		let idioma;
+		let valoracion;
+		let id;
+
+	    const exec = async () => {
+	      return await request(server)
+	        .delete('/api/libros/' + id)
+	        .send();
+	    }
+
+    	beforeEach(async () => {     
+    		nuevoTitulo = 'titulo2';
+	    	publicado   = util.obtenerAñoActual();
+	    	paginas = util.obtenerEnteroAleatorio(1, 500);
+
+	    	const tema = new Tema({ nombre: 'tema1' });
+			await tema.save();
+			temaId = tema._id;
+
+	    	const valoracion = new Valoracion({ nombre: 'valoracion1' });
+	    	await valoracion.save();
+	    	valoracionId = valoracion._id;
+
+	    	const editorial = new Editorial({ nombre: 'editorial' });
+	    	await editorial.save();	    	
+
+	    	const idioma = new Idioma({ nombre: 'idioma' });
+	    	await idioma.save();
+
+        	libro = new Libro({ 'titulo': 'titulo1', publicado, paginas, tema, valoracion, editorial, idioma });
+      		await libro.save();      
+      
+      		id = libro._id; 	    		
+    	});
+
+	    it('devuelve un error 404 si el id no es válido', async () => {
+	      id = 1; 
+	      
+	      const res = await exec();
+
+	      expect(res.status).toBe(404);
+	    });
+
+	    it('devuelve un error 404 si no se encuentra el id especificado', async () => {
+	      id = mongoose.Types.ObjectId();
+
+	      const res = await exec();
+
+	      expect(res.status).toBe(404);
+	    });
+
+	    it('debe borrar el libro', async () => {
+	      await exec();
+
+	      const libro = await Libro.findById(id);
+
+	      expect(libro).toBeNull();
+	    });
+
+	    it('devuelve el libro borrado', async () => {
+	      const res = await exec();
+
+	      expect(res.body).toHaveProperty('_id');
+	      expect(res.body).toHaveProperty('titulo');
+	    });
+
 	});
 });

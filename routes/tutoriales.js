@@ -75,7 +75,7 @@ router.put('/:id', validateObjectId, async (req, res) => {
 	const idioma = await Idioma.findById(req.body.idiomaId);
 	if (!idioma) res.status(404).send(message.IDIOMA_NO_ENCOTRADO);
 
-  	let tutorial = await Tutorial.findOneAndUpdate({_id: req.params.id},
+  	let tutorial = await Tutorial.findByIdAndUpdate({_id: req.params.id},
     { 
       titulo    : req.body.titulo,
 	  publicado : req.body.publicado,	  
