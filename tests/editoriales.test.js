@@ -20,13 +20,12 @@ describe('/api/editoriales', () => {
 
 			const res = await request(server).get('/api/editoriales');
 
-			expect(res.status).toBe(200);
-			expect(res.body.length).toBe(2);
+			expect(res.status).toBe(200);			
 			expect(res.body.some(e => e.nombre === 'editorial1')).toBeTruthy();
 			expect(res.body.some(e => e.nombre === 'editorial2')).toBeTruthy();
 		});
 	});
-
+	
 	describe('GET /:id', () => {
 		it('devuelve una editorial si le pasamos un id válido', async () => {
 			const editorial = new Editorial({ nombre: 'editorial1' });

@@ -5,7 +5,8 @@ module.exports = Object.freeze({
 	IDIOMA_NO_ENCONTRADO: 'Idioma no encontrado',
 	LIBRO_NO_ENCONTRADO: 'Libro no encontrado',
 	TEMA_NO_ENCONTRADO: 'Tema no encontrado',
-	TUTORIAL_NO_ENCONTRADO: 'Tutorial no encontrado',
-	VALORACION_NO_ENCONTRADA: 'Valoración no encontrada',
+	TUTORIAL_NO_ENCONTRADO   : 'Tutorial no encontrado',
+	VALORACION_NO_ENCONTRADA : 'Valoración no encontrada',
+	AÑO_PUBLICACION_NO_VALIDO: 'Año de publiación no válido'
     
 });

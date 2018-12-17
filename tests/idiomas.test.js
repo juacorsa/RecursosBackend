@@ -20,8 +20,7 @@ describe('/api/idiomas', () => {
 
 			const res = await request(server).get('/api/idiomas');
 
-			expect(res.status).toBe(200);
-			expect(res.body.length).toBe(2);
+			expect(res.status).toBe(200);			
 			expect(res.body.some(e => e.nombre === 'idioma1')).toBeTruthy();
 			expect(res.body.some(e => e.nombre === 'idioma2')).toBeTruthy();
 		});

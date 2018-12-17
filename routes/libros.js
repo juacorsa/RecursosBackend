@@ -6,6 +6,7 @@ const {Editorial} = require('../models/editorial');
 const {Idioma} = require('../models/idioma');
 const validateObjectId = require('../middleware/validateObjectId');
 const message = require('../messages');
+const util = require('../util');
 
 const router = express.Router();
 
@@ -31,7 +32,11 @@ router.get('/:id', validateObjectId, async (req, res) => {
 
 router.post('/', async (req, res) => {	
 	const { error } = validar(req.body);
-	if (error) return res.status(404).send(error.details[0].message);
+	if (error) return res.status(400).send(error.details[0].message);
+	
+	let añoActual = util.obtenerAñoActual();
+
+	if (req.body.publicado > añoActual) res.status(404).send(message.AÑO_PUBLICACION_NO_VALIDO);
 
 	const tema = await Tema.findById(req.body.temaId);	
 	if (!tema) res.status(404).send(message.TEMA_NO_ENCONTRADO);
@@ -61,7 +66,11 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', validateObjectId, async (req, res) => {	
 	const { error } = validar(req.body);
-	if (error) return res.status(404).send(error.details[0].message);
+	if (error) return res.status(400).send(error.details[0].message);
+
+	let añoActual = hoy.getFullyear();
+
+	if (req.body.publicado > añoActual) res.status(404).send(message.AÑO_PUBLICACION_NO_VALIDO);	
 
 	const tema = await Tema.findById(req.body.temaId);	
 	if (!tema) res.status(404).send(message.TEMA_NO_ENCONTRADO);
@@ -75,7 +84,7 @@ router.put('/:id', validateObjectId, async (req, res) => {
 	const idioma = await Idioma.findById(req.body.idiomaId);
 	if (!idioma) res.status(404).send(message.IDIOMA_NO_ENCONTRADO);
 
-  	let libro = await Libro.findOneAndUpdate({_id: req.params.id},
+  	let libro = await Libro.findByIdAndUpdate({_id: req.params.id},
     { 
       titulo    : req.body.titulo,
 	  publicado : req.body.publicado,

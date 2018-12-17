@@ -22,8 +22,7 @@ describe('/api/valoraciones', () => {
 
 			const res = await request(server).get('/api/valoraciones');
 
-			expect(res.status).toBe(200);
-			expect(res.body.length).toBe(2);
+			expect(res.status).toBe(200);			
 			expect(res.body.some(e => e.nombre === 'valoracion1')).toBeTruthy();
 			expect(res.body.some(e => e.nombre === 'valoracion2')).toBeTruthy();
 		});
