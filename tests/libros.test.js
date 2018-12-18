@@ -29,15 +29,17 @@ describe('/api/libros', () => {
 
 	describe('GET /', () => {
 		it('devuelve todos los libros', async () => {
+			const publicado = util.obtenerAñoActual();
+			const paginas = util.obtenerEnteroAleatorio(1, 1000);
+
 			Libro.collection.insertMany([
-				{ titulo: 'titulo1', publicado: 2018, paginas: 10, tema, valoracion, editorial, idioma },
-				{ titulo: 'titulo2', publicado: 2018, paginas: 10, tema, valoracion, editorial, idioma }
+				{ titulo: 'titulo1', publicado, paginas, tema, valoracion, editorial, idioma },
+				{ titulo: 'titulo2', publicado, paginas, tema, valoracion, editorial, idioma }
 			]);
 
 			const res = await request(server).get('/api/libros');
 
-			expect(res.status).toBe(200);
-			expect(res.body.length).toBe(2);
+			expect(res.status).toBe(200);			
 			expect(res.body.some(e => e.titulo === 'titulo1')).toBeTruthy();
 			expect(res.body.some(e => e.titulo === 'titulo2')).toBeTruthy();
 		});
