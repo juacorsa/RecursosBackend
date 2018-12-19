@@ -204,16 +204,14 @@ describe('/api/libros', () => {
     	beforeEach(async () => {     
     		nuevoTitulo = 'titulo2';
 	    	publicado   = util.obtenerAñoActual();
-	    	paginas = util.obtenerEnteroAleatorio(1, 500);
+	    	paginas 	= util.obtenerEnteroAleatorio(1, 500);
 
 	    	const tema = new Tema({ nombre: 'tema1' });
-			await tema.save();
-			temaId = tema._id;
+			await tema.save();			
 
 	    	const valoracion = new Valoracion({ nombre: 'valoracion1' });
 	    	await valoracion.save();
-	    	valoracionId = valoracion._id;
-
+	    	
 	    	const editorial = new Editorial({ nombre: 'editorial' });
 	    	await editorial.save();	    	
 
@@ -389,7 +387,10 @@ describe('/api/libros', () => {
 
 	      expect(res.body).toHaveProperty('_id');
 	      expect(res.body).toHaveProperty('titulo');
+	      expect(res.body).toHaveProperty('publicado');
+	      expect(res.body).toHaveProperty('tema');
+	      expect(res.body).toHaveProperty('editorial');
+	      expect(res.body).toHaveProperty('valoracion');
 	    });
-
 	});
 });
