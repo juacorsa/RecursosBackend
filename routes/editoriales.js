@@ -5,8 +5,8 @@ const validateObjectId = require('../middleware/validateObjectId');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  var registros = parseInt(req.query.registros);
-  var pagina = parseInt(req.query.pagina);
+  const registros = parseInt(req.query.registros);
+  const pagina = parseInt(req.query.pagina);
 
   const editoriales = await Editorial
     .find()
@@ -28,19 +28,29 @@ router.post('/', async (req, res) => {
 	const { error } = validar(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
-	let editorial = new Editorial({ nombre: req.body.nombre });
-	editorial = await editorial.save();
+  const nombre = req.body.nombre;
+  
+  let existe = await Editorial.findOne({"nombre": new RegExp("^" + nombre + "$", "i") }); 
+  if (existe) return res.status(400).send(message.EDITORIAL_YA_EXISTE);
 
-	res.send(editorial);
+	let editorial = new Editorial({nombre});
+	editorial = await editorial.save();
+	
+  res.send(editorial);
 });
 
 router.put('/:id', validateObjectId, async (req, res) => {
   const { error } = validar(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
 
+  const nombre = req.body.nombre;
+
+  let existe = await Editorial.findOne({"nombre": new RegExp("^" + nombre + "$", "i") }); 
+  if (existe) return res.status(400).send(message.EDITORIAL_YA_EXISTE);
+
   const editorial = await Editorial.findByIdAndUpdate(req.params.id,
     { 
-      nombre: req.body.nombre
+      nombre
     }, { new: true });
     
   if (!editorial) return res.status(404).send(message.EDITORIAL_NO_ENCONTRADA);

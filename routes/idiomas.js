@@ -28,6 +28,11 @@ router.post('/', async (req, res) => {
 	const { error } = validar(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
+  const nombre = req.body.nombre;
+
+  let existe = await Idioma.findOne({"nombre": new RegExp("^" + nombre + "$", "i") }); 
+  if (existe) return res.status(400).send(message.IDIOMA_YA_EXISTE);  
+
 	let idioma = new Idioma({ nombre: req.body.nombre });
 	idioma = await idioma.save();
 
@@ -38,9 +43,14 @@ router.put('/:id', validateObjectId, async (req, res) => {
   const { error } = validar(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
 
+  const nombre = req.body.nombre;
+
+  let existe = await Idioma.findOne({"nombre": new RegExp("^" + nombre + "$", "i") }); 
+  if (existe) return res.status(400).send(message.IDIOMA_YA_EXISTE);  
+
   const idioma = await Idioma.findByIdAndUpdate(req.params.id,
     { 
-      nombre: req.body.nombre
+      nombre
     }, { new: true });
 
   if (!idioma) return res.status(404).send(message.IDIOMA_NO_ENCONTRADO);

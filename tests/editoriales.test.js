@@ -87,12 +87,22 @@ describe('/api/editoriales', () => {
 	      	expect(editorial).not.toBeNull();
 	    });
 
-	    it('devuelve una editorial si es válida', async () => {
-			const res = await exec();		
+		it('devuelve un error 400 si la editorial ya existe', async () => {			
+			let res = await exec();
 
-	      	expect(res.body).toHaveProperty('_id');	      	
-	      	expect(res.body).toHaveProperty('nombre', nombre);
-	    });
+			res = await exec();
+			
+			expect(res.status).toBe(400);
+		});
+
+		it('devuelve un error 400 si la editorial ya existe', async () => {			
+			let res = await exec();
+			nombre = 'Editorial1';
+
+			res = await exec();
+			
+			expect(res.status).toBe(400);
+		});		
 	});
 
 	describe('PUT /', () => {
@@ -106,7 +116,7 @@ describe('/api/editoriales', () => {
         		.send({ nombre: nuevoNombre });
     	}
 
-    	beforeEach(async () => {     
+    	beforeEach(async () => {      		
         	editorial = new Editorial({ nombre: 'editorial1' });
       		await editorial.save();      
       
@@ -121,7 +131,7 @@ describe('/api/editoriales', () => {
 
 	      	expect(res.status).toBe(400);
 	    });
-
+	    
 	    it('devuelve un error 400 if el nombre de la editorial es vacío', async () => {
 	    	nuevoNombre = '';
 	      
@@ -130,7 +140,7 @@ describe('/api/editoriales', () => {
 	      	expect(res.status).toBe(400);
 	    });
 
-	    it('devuelve un error 404 si el id no es válido', async () => {
+	    it('devuelve un error 404 si el id no es válido 1', async () => {
 	      id = 1;
 
 	      const res = await exec();
@@ -138,7 +148,7 @@ describe('/api/editoriales', () => {
 	      expect(res.status).toBe(404);
 	    });
 
-	    it('devuelve un error 404 si el id de la editorial no es válido', async () => {
+	    it('devuelve un error 404 si el id no es válido 2', async () => {
 	      id = mongoose.Types.ObjectId();
 	      nuevoNombre = new Array(10).join('a');
 
@@ -150,16 +160,10 @@ describe('/api/editoriales', () => {
 	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
 	      await exec();
 
-	      const editorialActualizada = await Editorial.findById(editorial._id);
+	      
+	      const editorialActualizada = await Editorial.findById(id);
 
-	      expect(editorialActualizada.nombre).toBe(nuevoNombre);
-	    });
-
-	    it('devuelve la editorial actualizada si la editorial es válida', async () => {
-	      const res = await exec();
-
-	      expect(res.body).toHaveProperty('_id');
-	      expect(res.body).toHaveProperty('nombre', nuevoNombre);
+	      expect(editorialActualizada.nombre).toBe('editorialActualizada');
 	    });
 	});
 })

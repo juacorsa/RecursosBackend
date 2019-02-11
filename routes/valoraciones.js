@@ -20,7 +20,12 @@ router.post('/', async (req, res) => {
 	const { error } = validar(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
-	let valoracion = new Valoracion({ nombre: req.body.nombre });
+  const nombre = req.body.nombre;
+
+  let existe = await Valoracion.findOne({"nombre": new RegExp("^" + nombre + "$", "i") }); 
+  if (existe) return res.status(400).send(message.VALORACION_YA_EXISTE);  
+
+	let valoracion = new Valoracion({nombre});
 	valoracion = await valoracion.save();
 
 	res.send(valoracion);
@@ -30,9 +35,14 @@ router.put('/:id', validateObjectId, async (req, res) => {
   const { error } = validar(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
 
+  const nombre = req.body.nombre;
+
+  let existe = await Valoracion.findOne({"nombre": new RegExp("^" + nombre + "$", "i") }); 
+  if (existe) return res.status(400).send(message.VALORACION_YA_EXISTE);  
+
   const valoracion = await Valoracion.findByIdAndUpdate(req.params.id,
     { 
-      nombre: req.body.nombre
+      nombre
     }, { new: true });
 
   if (!valoracion) return res.status(404).send(message.VALORACION_NO_ENCONTRADA);

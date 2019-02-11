@@ -28,7 +28,12 @@ router.post('/', async (req, res) => {
 	const { error } = validar(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
-	let fabricante = new Fabricante({ nombre: req.body.nombre });
+  const nombre = req.body.nombre;
+
+  let existe = await Fabricante.findOne({"nombre": new RegExp("^" + nombre + "$", "i") }); 
+  if (existe) return res.status(400).send(message.FABRICANTE_YA_EXISTE);  
+
+	let fabricante = new Fabricante({nombre});
 	fabricante = await fabricante.save();
 
 	res.send(fabricante);
@@ -38,9 +43,14 @@ router.put('/:id', validateObjectId, async (req, res) => {
   const { error } = validar(req.body); 
   if (error) return res.status(400).send(error.details[0].message);
 
+  const nombre = req.body.nombre;
+
+  let existe = await Fabricante.findOne({"nombre": new RegExp("^" + nombre + "$", "i") }); 
+  if (existe) return res.status(400).send(message.FABRICANTE_YA_EXISTE);  
+
   const fabricante = await Fabricante.findByIdAndUpdate(req.params.id,
     { 
-      nombre: req.body.nombre
+      nombre
     }, { new: true });
 
   if (!fabricante) return res.status(404).send(message.FABRICANTE_NO_ENCONTRADO);
